@@ -1,10 +1,20 @@
 import mongoose from "mongoose";
 import { IUser, UserRole } from "../types/users";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const options = {
   discriminatorKey: "role",
   collection: "user",
   timestamps: true,
+  toJSON: {
+    virtuals: true,
+    versionKey: false,
+    transform(doc: mongoose.Document, ret: Record<string, any>) {
+      ret.id = ret._id;
+      delete ret._id;
+    },
+  },
 };
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -38,27 +48,69 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     passwordConfirm: {
       type: String,
-      required: [true, "Please confirm your password"],
+      required: [true, "Password confirm is required"],
       validate: {
         validator: function (this: IUser, value: string): boolean {
-          return this.password === value;
+          if (this.isNew) {
+            return this.password === value;
+          }
+          return true;
         },
+        message: "Password confirmation does not match the password",
       },
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetTokenExpiration: Date,
-    active: {
-      type: Boolean,
-      default: true,
-      select: false,
-    },
-    role: {
+    status: {
       type: String,
-      enum: Object.values(UserRole),
-      required: [true, "Role is required"],
+      enum: ["pending", "active", "banned", "deleted"],
+      default: "pending",
+    },
+    phone: {
+      type: String,
+    },
+    image: {
+      type: String,
     },
   },
+
   options
 );
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = (await bcrypt.hash(this.password as string, 12)) as
+    | string
+    | undefined;
+  this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedpasswordAfter = function (JWTTimestamp: number) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = Math.floor(
+      this.passwordChangedAt.getTime() / 1000
+    );
+    return changedTimestamp > JWTTimestamp;
+  }
+  return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.passwordResetTokenExpiration = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
 export const User = mongoose.model("User", userSchema);
