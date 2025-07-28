@@ -13,10 +13,6 @@ const sellerSchema = new mongoose.Schema<ISeller>({
   storeLogo: {
     type: String,
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 export const Seller = User.discriminator("Seller", sellerSchema);
