@@ -1,12 +1,8 @@
 import mongoose from "mongoose";
-import { ICustomer } from "../types/users";
+import { ICustomer, UserRole } from "../types/users";
 import { User } from "./user";
 
-const customerSchema = new mongoose.Schema<ICustomer>({
-  phone: {
-    type: String,
-  },
-  addresses: {
+const customerSchema = new mongoose.Schema<ICustomer>({  addresses: {
     type: [
       {
         label: String,
@@ -21,4 +17,7 @@ const customerSchema = new mongoose.Schema<ICustomer>({
   wishList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 });
 
-export const customer = User.discriminator("Customer", customerSchema);
+export const Customer = User.discriminator<ICustomer>(
+  "Customer",
+  customerSchema
+);
