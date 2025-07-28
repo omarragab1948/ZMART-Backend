@@ -1,21 +1,27 @@
 import { Document, Types } from "mongoose";
 
 export enum UserRole {
-  Admin = "Admin",
+  Admin = "Employee",
   Seller = "Seller",
   Customer = "Customer",
 }
 
 export interface IUser extends Document {
+  _id: string;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   passwordConfirm?: string;
   passwordChangedAt: Date;
-  passwordResetToken: string;
-  passwordResetTokenExpiration: Date;
-  active: boolean;
+  passwordResetToken: string | undefined;
+  passwordResetTokenExpiration: Date | undefined;
+  status: string;
   role: UserRole;
+  correctPassword: (candidatepassword: string, userPassword: string) => boolean;
+  changedpasswordAfter: (JWTTimestamp: number) => boolean;
+  createPasswordResetToken: () => string;
+  phone?: string;
+  image: string;
 }
 export interface Address {
   label?: string;
@@ -26,19 +32,17 @@ export interface Address {
   default?: boolean;
 }
 export interface ICustomer extends IUser {
-  phone?: string;
   addresses?: Address[];
   wishList?: Types.ObjectId[];
+  role: UserRole.Customer;
 }
 
 export interface ISeller extends IUser {
   storeName: string;
   storeDescription?: string;
   storeLogo?: string;
-  isVerified: boolean;
 }
 
-export interface IAdmin extends IUser {
+export interface IEmployee extends IUser {
   permissions: Map<string, string[]>;
-  isSuperAdmin: boolean;
 }
