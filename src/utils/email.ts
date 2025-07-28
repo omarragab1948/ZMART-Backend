@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-class Email {
+export class Email {
   public to: string;
   public from: string;
   public firstName: string;
