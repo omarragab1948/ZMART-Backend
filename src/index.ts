@@ -15,7 +15,7 @@ import { router as authRouters } from "./routes/auth/auth";
 import { router as sellersRouters } from "./routes/dashboard/seller";
 import { router as customersRouters } from "./routes/dashboard/customer";
 import { router as employeesRouters } from "./routes/dashboard/employee";
-
+import { router as permissionsRouters } from "./routes/dashboard/permission";
 import { globalErrorHandler } from "./controllers/errorController";
 
 dotenv.config({ path: "./config.env" });
@@ -58,6 +58,7 @@ app.use("/api/v1/auth", authRouters);
 app.use("/api/v1/sellers", sellersRouters);
 app.use("/api/v1/customers", customersRouters);
 app.use("/api/v1/employees", employeesRouters);
+app.use("/api/v1/permissions", permissionsRouters);
 
 app.all(/.*/, (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
