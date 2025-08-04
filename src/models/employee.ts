@@ -3,10 +3,10 @@ import { IEmployee } from "../types/users";
 import { User } from "./user";
 
 const employeeSchema = new mongoose.Schema<IEmployee>({
-  permissions: {
-    type: Map,
-    of: [String],
-    default: {},
+  permission: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Permissions",
+    required: true,
   },
 });
 

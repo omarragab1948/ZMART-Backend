@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 
 export enum UserRole {
   Admin = "Employee",
@@ -44,5 +44,5 @@ export interface ISeller extends IUser {
 }
 
 export interface IEmployee extends IUser {
-  permissions: Map<string, string[]>;
+  permission: mongoose.Schema.Types.ObjectId;
 }
