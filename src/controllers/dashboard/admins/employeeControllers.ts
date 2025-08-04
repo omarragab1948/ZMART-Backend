@@ -21,7 +21,7 @@ export const getAllEmployees = catchAsync(async (req, res, next) => {
 
 export const getEmployeeById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const employee = await Employee.findById(id);
+  const employee = await Employee.findById(id).populate("permission", "name description");
 
   if (!employee) {
     return next(new AppError("Employee not found", 404));
