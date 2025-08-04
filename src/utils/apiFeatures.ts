@@ -40,9 +40,9 @@ export class ApiFeatures<T> {
   sort() {
     if (this.queryString.sort && typeof this.queryString.sort === "string") {
       const q = this.queryString.sort.split(",").join(" ");
-      this.query.select(q);
+      this.query.sort(q);
     } else {
-      this.query.select("-createdAt");
+      this.query.sort("-createdAt");
     }
     return this;
   }
